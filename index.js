@@ -1,13 +1,20 @@
-const http = require('http');
+var PORT = process.env.PORT || 5000;
+var express = require('express');
+var app = express();
 
-const PORT = process.env.PORT || 5000;
+var http = require('http');
+var server = http.Server(app);
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-type', 'text/plain');
-    res.end('Welcome to my JS Server');
+app.use(express.static('client'));
+
+server.listen(PORT, function() {
+  console.log('Chat server running');
 });
 
-server.listen(PORT, () => {
-    console.log('Server started on port '+ PORT);
-})
+var io = require('socket.io')(server);
+
+io.on('connection', function(socket) {
+  socket.on('message', function(msg) {
+    io.emit('message', msg);
+  });
+});
